@@ -98,3 +98,150 @@ There are two types of nodes
 * Docker is the most widely used
  * also supports containerd, cri-o, rktlet
  * Can be extended through the _Kubernetes Container Runtime Interface_
+
+
+
+### Addons
+Usual Kubernetes installations include several addons
+* DNS
+ * A DNS server that works in conjunction with the system DNS
+ * Provides name resolution for services and pods
+* Cluster-level Logging - e.g. elasticsearch+kibana
+* Dashboard
+
+
+
+## API Objects
+* The user interacts with kubernetes by setting, modifying and deleting _API Objects_ 
+* Examples of objects:
+ * Pod
+ * Service
+ * Deployment
+* Objects are persisted in Kubernetes
+* Each object has a **spec** and **status**
+
+
+### How it Works
+![pr](./content/images/k8sSimple.png) 
+
+
+### Breaking it Down
+Lets create a pod <!-- .element: style="text-align:left;"-->
+* User sends _API Object_ to API Server
+* API Server stores it in etcd
+* Scheduler schedules the pod to a node
+* Kubelet on the node creates the containers/network/mounts for the pod
+* Docker pulls the image from the registry and runs the container
+
+
+### Pods
+* Pods are logical wrappers for containers
+* All containers in the same pod will:
+ * Run on the same host
+ * Share the same network
+* Usually there will be only one container per pod
+* Extra containers are called sidecars
+
+
+### Pods
+* Pods are ephemeral.
+ * They won't survive scheduling failures, node failures, or other evictions, such as due to lack of resources
+ * The app should be able to recover from  
+
+
+### Sidetrack - YAML
+* A super-set of JSON
+* Uses spaces **(not tabs)** instead of {}
+* Supports lists and maps
+
+
+### YAML
+Maps
+```yaml
+apiVersion: v1
+kind: Pod
+```
+similar to JSON
+```json
+{
+    "apiVersion": "v1",
+    "kind": "Pod"
+}
+```
+
+
+### YAML
+Maps of Maps
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: rss-site
+  labels:
+    app: web
+```
+
+
+### YAML
+Lists
+```yaml
+args:
+  - sleep
+  - "1000"
+  - message
+  - "Bring back Firefly!"
+```
+
+
+### YAML
+Comments
+```yaml
+apiVersion: v1
+kind: Pod
+# this is a comment
+```
+
+
+<!-- .slide: data-transition="none" -->
+### Back to Pods 
+<pre>
+<u>apiVersion: v1</u>
+kind: Pod
+metadata:
+  name: rss-site
+  labels:
+    app: web
+spec:
+  containers:
+    - name: front-end
+      image: nginx
+      ports:
+        - containerPort: 80
+    - name: rss-reader
+      image: nickchase/rss-php-nginx:v1
+      ports:
+        - containerPort: 88
+</code></pre>
+
+
+<!-- .slide: data-transition="none" -->
+### Back to Pods 
+<pre>
+apiVersion: v1
+<u>kind: Pod</u>
+metadata:
+  name: rss-site
+  labels:
+    app: web
+spec:
+  containers:
+    - name: front-end
+      image: nginx
+      ports:
+        - containerPort: 80
+    - name: rss-reader
+      image: nickchase/rss-php-nginx:v1
+      ports:
+        - containerPort: 88
+</code></pre>
+

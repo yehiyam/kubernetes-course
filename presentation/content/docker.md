@@ -125,6 +125,7 @@ e.g. Mount local directory /html as directory /usr/share/nginx/html in the conta
 <!-- .element: class="fragment" data-fragment-index="1"-->
 
 
+
 ### Demo time
 ![pr](./content/images/coding.gif) 
 
@@ -214,6 +215,58 @@ Example:<!-- .element: style="text-align:left;" -->
 On container startup they can be overwritten with the `-e` or `--env` option:
 
     docker run -e key=value my_image
+
+
+### Building images
+```shell
+$ docker build -t yehiyam/my-image:v1 .
+```
+To specify the Dockerfile<!-- .element: style="text-align:left;" -->
+
+```shell
+$ docker build -t yehiyam/my-image:v1 -f ./folder/Dockerfile .
+```
+
+
+### Registry
+* On of the strengths of Docker is the ability to easily share and distribute images
+* A Docker registry holds image in a central location to allow easy sharing
+* The default registry is Docker Hub
+
+
+### Docker Hub
+* https://hub.docker.com/
+* Free for public repositories (public read only)
+* To push to the registry
+```
+$ docker push yehiyam/my-image:v1
+```
+
+
+### Private Registries
+* Docker provides a Docker image we can use to host our own registry
+* Specify the registry before the image name
+```shell
+$ docker push my-registry:5000/yehiyam/my-image:v1
+```
+Works for tagging, pulling and pushing
+
+
+### Insecure Registries
+* By default Docker access the registry with HTTPS
+* When setting up a private registry in the organization, it is usually HTTP
+* To access the registry we need to tell the Docker engine that it is OK
+```shell
+/etc/docker/daemon.json
+```
+```json
+{
+    "insecure-registries": [
+        "my-registry:5000",
+        "your-registry:9999"
+        ]
+}
+```
 
 
 ### Exercise
