@@ -237,6 +237,10 @@ $ docker build -t yehiyam/my-image:v1 -f ./folder/Dockerfile .
 ### Docker Hub
 * https://hub.docker.com/
 * Free for public repositories (public read only)
+* Need to login to push
+```
+$ docker login -u username -p password
+```
 * To push to the registry
 ```
 $ docker push yehiyam/my-image:v1
