@@ -150,7 +150,7 @@ $ minikube start
 
 
 ### MicroK8s
-* From Canonical 
+* From Canonical - the makers of Ubuntu
 * Very easy to install
 * Installs as _snap_ 
 
@@ -159,9 +159,97 @@ $ sudo snap install microk8s --classic
 ```
 
 
+
 ### Docker Desktop
 * From Docker
 * Installs Docker and Kubernetes in a VM
+
+
+
+### kubectl command line
+Official CLI tool
+```
+$ kubectl version
+$ kubectl --help
+```
+Has autocomplete
+```
+$ echo 'source <(kubectl completion bash)' >>~/.bashrc
+```
+It is configured with the file  
+```
+~/.kube/config
+```
+> minikube, microk8s will configure it for us
+
+
+### kubectl
+Can be configured for multiple contexts
+```
+kubectl config get-context
+```
+Switch to a certain context:
+```
+$ kubectl config use-context minikube
+```
+
+
+### kubectl get
+```
+$ kubectl get pods
+$ kubectl get deployments
+```
+Filter with labels
+```
+$ kubectl get pods -l key=value
+```
+Output format
+``` 
+$ kubectl get deployment -o wide/json/yaml
+```
+Watch for changes
+```
+$ kubectl get po -l type=worker -w
+```
+
+
+### kubectl create
+Create from yaml file
+```
+$ kubectl create -f path/to/yaml
+$ kubectl apply -f path/to/yaml
+```
+> apply also allows to update the object
+
+
+### kubectl logs
+```
+$ kubectl logs podName 
+```
+Follow logs
+```
+$ kubectl logs podName -f
+```
+
+
+### kubectl exec
+Execute command in a running container
+```
+$ kubectl exec -it podName command 
+```
+Example - run bash shell in a container
+```
+$ kubectl exec -it podName /bin/bash 
+```
+
+
+### kubectl port-forward
+Forward TCP traffic from the pod to the local machine
+```shell
+$ kubectl port-forward podName localPort:podPort
+```
+> Can be used for remote debugging (Later)
+
 
 
 
@@ -655,5 +743,113 @@ spec:
   <u>selector:</u>
     app: result
 </pre>
+
+
+
+### Configuration
+* Applications expect configuration from
+ * Configuration files
+ * Command line arguments
+ * Environment variables
+
+
+### Configuration
+* Configuration is always decoupled from applications
+ * INI
+ * XML
+ * JSON
+ * Custom Format
+* Container Images shouldn't hold application configuration
+ * Essential for keeping containerized applications portable
+
+
+### ConfigMaps
+* Kubernetes objects for injecting containers with configuration data
+* ConfigMaps keep containers agnostic of Kubernetes
+* They can be used to store fine-grained or coarse-grained configuration
+ * Individual properties
+ * Entire configuration file
+ * JSON files
+* ConfigMaps hold configuration in Key-Value pairs accessible to Pods
+
+
+### ConfigMap Spec
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: special-config
+  namespace: default
+data:
+  SPECIAL_LEVEL: very
+  SPECIAL_TYPE: charm
+```
+
+
+<!-- .slide: data-transition="none" -->
+### ConfigMap Spec
+<pre>
+apiVersion: v1
+<u>kind: ConfigMap</u>
+metadata:
+  name: special-config
+  namespace: default
+data:
+  SPECIAL_LEVEL: very
+  SPECIAL_TYPE: charm
+</pre>
+
+
+<!-- .slide: data-transition="none" -->
+### ConfigMap Spec
+<pre>
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: special-config
+  namespace: default
+<u>data:</u>
+  SPECIAL_LEVEL: very
+  SPECIAL_TYPE: charm
+</pre>
+
+
+### Use it in pods as Env
+```
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+    - name: front-end
+      image: nginx
+      ports:
+        - containerPort: 80
+      env:
+        - name: SPECIAL_LEVEL_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: special-config
+              key: SPECIAL_LEVEL
+```
+
+
+### Use it in pods as Files
+```yaml
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+    - name: front-end
+      image: nginx
+      volumeMounts:
+        - name: config-volume
+          mountPath: /etc/config
+  volumes:
+    - name: config-volume
+      configMap:
+        # Provide the name of the ConfigMap containing the files you want
+        # to add to the container
+        name: special-config
+```
 
 
