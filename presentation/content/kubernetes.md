@@ -166,6 +166,22 @@ $ sudo snap install microk8s --classic
 
 
 
+### Cloud Providers
+* All major cloud providers has a managed (paas) Kubernetes offering.
+ * GKE - Google
+ * EKS - Amazon AWS
+ * AKS - Microsoft Azure
+ * Openshift, Pivotal, IBM, and many more
+* Very easy to set up - Usually one click
+
+
+### On Premise
+* Several of the paas Kubernetes providers also support on-prem installation
+* Even in a disconnected environment
+* We use [Kubespray](https://github.com/kubernetes-sigs/kubespray)
+
+
+
 ### kubectl command line
 Official CLI tool
 ```
@@ -815,7 +831,7 @@ metadata:
 
 
 ### Use it in pods as Env
-```
+```yaml
 apiVersion: v1
 kind: Pod
 spec:
@@ -853,3 +869,9 @@ spec:
 ```
 
 
+
+### Secrets
+* Secrets keep user data like config maps
+* Limited to small amount of data like tokens and passwords
+* Secrets are encrypted between Api Server to the Kubelet, but
+ * Kept as clear text in ectd
