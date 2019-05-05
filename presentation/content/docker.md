@@ -136,7 +136,7 @@ e.g. Mount local directory /html as directory /usr/share/nginx/html in the conta
 2. Overwrite the content of the index.html
 3. Watch the webserver logs
 4. compare the output of `ps -ef` from your container with the host
-
+> https://www.katacoda.com/courses/docker/create-nginx-static-web-server
 
 
 ### Dockerfile

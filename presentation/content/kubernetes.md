@@ -179,6 +179,14 @@ $ sudo snap install microk8s --classic
 * Several of the paas Kubernetes providers also support on-prem installation
 * Even in a disconnected environment
 * We use [Kubespray](https://github.com/kubernetes-sigs/kubespray)
+ * Ansible scripts
+ * Together with bash scripts
+
+
+### Playgroud
+* [Katacoda](https://www.katacoda.com/) is an interactive learning and training platform for software developers
+* Provide web (browser) access to hosted environments that can be customized
+* Provides curses and tutorials for Docker, Kubernetes and many more
 
 
 
@@ -875,3 +883,151 @@ spec:
 * Limited to small amount of data like tokens and passwords
 * Secrets are encrypted between Api Server to the Kubelet, but
  * Kept as clear text in ectd
+
+
+
+## Lets practice
+https://www.katacoda.com/courses/kubernetes/creating-kubernetes-yaml-definitions
+
+
+
+## Advanced Objects
+* Daemon set
+* Job
+* Cronjob
+* Ingress
+* Storage
+
+
+### Daemon Set
+* A DaemonSet ensures that all (or some) Nodes run a copy of a Pod
+* Some typical uses of a DaemonSet are:
+ * running a logs collection daemon on every node, such as fluentd
+ * running a node monitoring daemon on every node
+
+
+### Job
+* A Job creates one or more Pods and ensures that a specified number of them successfully terminate
+* If a Pod failes, the Job controller will start a new one
+ * Until the required number of successful completions
+ * Or the maximum number of retries
+
+
+### Job Spec
+```yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pi
+spec:
+  template:
+    spec:
+      containers:
+      - name: pi
+        image: perl
+        command: ["perl",  "-Mbignum=bpi", "-wle", "print bpi(2000)"]
+      restartPolicy: Never
+  backoffLimit: 4
+```
+
+
+### CronJob
+* A Cron Job creates Jobs on a time-based schedule.
+* Similar to crontab
+ * Runs a job periodically
+ * Schedule is written in Cron format
+
+
+### CronJob Spec
+```yaml
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: hello
+spec:
+  schedule: "*/1 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: hello
+            image: busybox
+            args:
+            - /bin/sh
+            - -c
+            - date; echo Hello from the Kubernetes cluster
+          restartPolicy: OnFailure
+```
+
+
+<!-- .slide: data-transition="none" -->
+### CronJob Spec
+<pre>
+apiVersion: batch/v1beta1
+<u>kind: CronJob</u>
+metadata:
+  name: hello
+spec:
+  schedule: "*/1 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: hello
+            image: busybox
+            args:
+            - /bin/sh
+            - -c
+            - date; echo Hello from the Kubernetes cluster
+          restartPolicy: OnFailure
+</pre>
+
+
+<!-- .slide: data-transition="none" -->
+### CronJob Spec
+<pre>
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: hello
+spec:
+  <u>schedule: "*/1 * * * *"</u>
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: hello
+            image: busybox
+            args:
+            - /bin/sh
+            - -c
+            - date; echo Hello from the Kubernetes cluster
+          restartPolicy: OnFailure
+</pre>
+
+
+<!-- .slide: data-transition="none" -->
+### CronJob Spec
+<pre>
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: hello
+spec:
+  schedule: "*/1 * * * *"
+  <u>jobTemplate:</u>
+    spec:
+      template:
+        spec:
+          containers:
+          - name: hello
+            image: busybox
+            args:
+            - /bin/sh
+            - -c
+            - date; echo Hello from the Kubernetes cluster
+          restartPolicy: OnFailure
+</pre>
