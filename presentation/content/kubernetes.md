@@ -913,6 +913,86 @@ https://www.katacoda.com/courses/kubernetes/creating-kubernetes-yaml-definitions
 
 
 
+## Networking
+
+
+Kubernetes network needs to solve several distinct networking problems
+
+
+### Container to Container
+Solved by the Pod concept and `localhost`
+
+
+### Pod-to-Service communications
+Solved with _kube-proxy_
+
+
+### Pod to Pod
+Kubernetes requirements from pod networking:
+* Every pod has a unique IP address
+ * No need to map ports
+ * Almost like VM
+* All pods can communicate without NAT
+* Agents on a node can communicate with all pods on that node
+
+
+<!-- .slide: data-transition="none" -->
+### Lets start with docker
+![net1](./content/images/net1.png)
+
+
+<!-- .slide: data-transition="none" -->
+### Add another
+![net1](./content/images/net2.png)
+
+
+<!-- .slide: data-transition="none" -->
+### Pod with two containers
+![net1](./content/images/net3.png)
+
+
+<!-- .slide: data-transition="none" -->
+### Actually there is a third container
+![net1](./content/images/net4.png)
+
+
+<!-- .slide: data-transition="none" -->
+### And if we have two nodes
+![net1](./content/images/net5.png)<!-- .element width="70%" height="70%"-->
+
+
+<!-- .slide: data-transition="none" -->
+### But this is wrong
+![net1](./content/images/net5wrong.png)<!-- .element width="70%" height="70%"-->
+
+
+<!-- .slide: data-transition="none" -->
+### The kubernetes way
+![net1](./content/images/net6.png)<!-- .element width="70%" height="70%"-->
+
+
+But the Pod IP's are not routable between hosts
+
+
+### Overlay/Underlay Networks
+* Provide a mechanism to get packets from one host to another
+* May operate on Layer 2 or Layer 3
+* Many options
+
+
+Cloud providers usually use smart networking tricks (Underlay)
+
+
+Otherwise there is a need to wrap packets and route them to the correct host (VxLAN)
+
+
+* Flannel
+* Project Calico
+* Cilium
+* Contiv
+
+
+
 ## Advanced Objects
 * Daemon set
 * Job
@@ -1257,3 +1337,276 @@ spec:
 
 <!-- .slide: data-transition="none" -->
 ![1](./content/images/kubernetes-best-practices-36-638.jpg)
+
+
+### Use sidecar containers for proxies, loggers, etc
+
+
+<!-- .slide: data-transition="none" -->
+![1](./content/images/kubernetes-best-practices-39-638.jpg)
+
+
+### Init Containers
+* Init Containers are exactly like regular Containers, except:
+ * They always run to completion.
+ * Each one must complete successfully before the next one is started.
+
+
+### Example usage:
+Wait for a service to be created with a shell command like:
+```
+for i in {1..100};
+do 
+  sleep 1
+  if dig myservice; then exit 0; fi
+done
+exit 1
+```
+
+
+Register this Pod with a remote server
+
+
+Wait for some time before starting the app Container with a command like
+```
+sleep 60
+```
+
+
+<!-- .slide: data-transition="none" -->
+### Init Container Spec
+In Pod Spec
+<pre>
+apiVersion: v1
+kind: Pod
+metadata:
+  name: myapp-pod
+  labels:
+    app: myapp
+spec:
+  containers:
+  - name: myapp-container
+    image: busybox:1.28
+    command: ['sh', '-c', 'echo The app is running! && sleep 3600']
+  <u>initContainers:</u>
+  - name: init-myservice
+    image: busybox:1.28
+    command: ['sh','-c', 'until nslookup mysvc; do sleep 2; done;']
+  - name: init-mydb
+    image: busybox:1.28
+    command: ['sh', '-c', 'until nslookup mydb; do sleep 2; done;']
+</pre>
+
+
+<!-- .slide: data-transition="none" -->
+<pre>
+apiVersion: v1
+kind: Pod
+metadata:
+  name: myapp-pod
+  labels:
+    app: myapp
+spec:
+  containers:
+  - name: myapp-container
+    image: busybox:1.28
+    command: ['sh', '-c', 'echo The app is running! && sleep 3600']
+  <u>initContainers:</u>
+  - name: init-myservice
+    image: busybox:1.28
+    command: ['sh','-c', 'until nslookup mysvc; do sleep 2; done;']
+  - name: init-mydb
+    image: busybox:1.28
+    command: ['sh', '-c', 'until nslookup mydb; do sleep 2; done;']
+</pre>
+
+
+<!-- .slide: data-transition="none" -->
+<pre>
+apiVersion: v1
+kind: Pod
+metadata:
+  name: myapp-pod
+  labels:
+    app: myapp
+spec:
+  containers:
+  - name: myapp-container
+    image: busybox:1.28
+    command: ['sh', '-c', 'echo The app is running! && sleep 3600']
+  initContainers:
+  <u>- name: init-myservice</u>
+    image: busybox:1.28
+    command: ['sh','-c', 'until nslookup mysvc; do sleep 2; done;']
+  - name: init-mydb
+    image: busybox:1.28
+    command: ['sh', '-c', 'until nslookup mydb; do sleep 2; done;']
+</pre>
+
+
+<!-- .slide: data-transition="none" -->
+<pre>
+apiVersion: v1
+kind: Pod
+metadata:
+  name: myapp-pod
+  labels:
+    app: myapp
+spec:
+  containers:
+  - name: myapp-container
+    image: busybox:1.28
+    command: ['sh', '-c', 'echo The app is running! && sleep 3600']
+  initContainers:
+  - name: init-myservice
+    <u>image: busybox:1.28</u>
+    command: ['sh','-c', 'until nslookup mysvc; do sleep 2; done;']
+  - name: init-mydb
+    image: busybox:1.28
+    command: ['sh', '-c', 'until nslookup mydb; do sleep 2; done;']
+</pre>
+
+
+<!-- .slide: data-transition="none" -->
+<pre>
+apiVersion: v1
+kind: Pod
+metadata:
+  name: myapp-pod
+  labels:
+    app: myapp
+spec:
+  containers:
+  - name: myapp-container
+    image: busybox:1.28
+    command: ['sh', '-c', 'echo The app is running! && sleep 3600']
+  initContainers:
+  - name: init-myservice
+    image: busybox:1.28
+    <u>command: ['sh','-c', 'until nslookup mysvc; do sleep 2; done;']</u>
+  - name: init-mydb
+    image: busybox:1.28
+    command: ['sh', '-c', 'until nslookup mydb; do sleep 2; done;']
+</pre>
+
+
+<!-- .slide: data-transition="none" -->
+<pre>
+apiVersion: v1
+kind: Pod
+metadata:
+  name: myapp-pod
+  labels:
+    app: myapp
+spec:
+  containers:
+  - name: myapp-container
+    image: busybox:1.28
+    command: ['sh', '-c', 'echo The app is running! && sleep 3600']
+  initContainers:
+  - name: init-myservice
+    image: busybox:1.28
+    command: ['sh','-c', 'until nslookup mysvc; do sleep 2; done;']
+  <u>- name: init-mydb</u>
+    image: busybox:1.28
+    command: ['sh', '-c', 'until nslookup mydb; do sleep 2; done;']
+</pre>
+
+
+### Container health checks
+* Kubernetes provides two health checks for containers
+ * Rediness: Is the app ready 
+ * Liveness: Is the app still running
+
+```yaml
+livenessProbe:
+  httpGet:
+    path: /healthz
+    port: 8080
+  initialDelaySeconds: 5
+  periodSeconds: 5
+```
+
+
+### Node Selector
+* Allows node selection constraint
+* A map of key-value pairs
+ * All of the pairs must match the node labels
+
+
+### Attach labels to nodes
+```shell
+$ kubectl label nodes <node-name> <label-key>=<label-value>
+```
+
+
+### Add nodeSelector to Pod
+<pre>
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+  labels:
+    env: test
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+    imagePullPolicy: IfNotPresent
+  <u>nodeSelector:</u>
+    disktype: ssd
+</pre>
+
+
+### Pod Affinity/Anti-affinity
+* Allows grouping or separating Pods across nodes
+* Example usage:
+ * Schedule two pods on the same node for data locality
+ * Don't schedule two replicas of database pods to the same node
+
+
+### Namespaces
+
+
+Kubernetes supports multiple virtual clusters backed by the same physical cluster
+
+
+These virtual clusters are called namespaces
+
+
+* Namespaces provide a scope for names
+* Names of resources need to be unique within a namespace, but not across namespaces
+
+
+For example  
+kube-system namespace that is created by Kubernetes
+
+
+### Helpful tools
+* Telepresence
+* Remote Debugging
+* Visual Studio Code Kubernetes Tools
+
+
+### Telepresence
+https://www.telepresence.io  
+* Open source tool
+* Lets you run a single service locally, while connecting that service to a remote Kubernetes cluster
+* Deploys a two-way network proxy in a pod running in your Kubernetes cluster
+
+
+### Remote Debugging
+Using port forwarding to pods in the cluster to debug
+Nodejs 
+```shell
+$ kubectl exec -it pod-name -- bash -c 'kill -s USR1 1'
+$ kubectl port-forward pod-name 9229:9229
+# open chrome and connect
+```
+
+
+### Visual Studio Code Kubernetes Tools
+* View cluster resources
+* Edit/Create resources  
+
+Remote debug a pod in kubernetes<!-- .element: class="fragment" -->
