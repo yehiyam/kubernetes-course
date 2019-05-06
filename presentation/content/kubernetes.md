@@ -1194,3 +1194,66 @@ spec:
 
 
 ## Good practices
+
+
+### Kubernetes is really flexible
+
+
+### But you might shoot yourself in the foot
+
+
+### One process per container
+
+
+### Don't restart on failure - Crash cleanly
+
+
+### Log to stdout and stderr
+
+
+### Use plenty of descriptive labels
+
+
+<pre>
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: rss-site
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        <u>app: web</u>
+        <u>revision: 3</u>
+        <u>experimental: true</u>
+    spec:
+      containers:
+        - name: front-end
+          image: nginx
+          ports:
+            - containerPort: 80
+        - name: rss-reader
+          image: nickchase/rss-php-nginx:v1
+          ports:
+            - containerPort: 88
+</pre>
+
+
+![1](./content/images/kubernetes-best-practices-32-638.jpg)
+
+
+<!-- .slide: data-transition="none" -->
+![1](./content/images/kubernetes-best-practices-33-638.jpg)
+
+
+<!-- .slide: data-transition="none" -->
+![1](./content/images/kubernetes-best-practices-34-638.jpg)
+
+
+<!-- .slide: data-transition="none" -->
+![1](./content/images/kubernetes-best-practices-35-638.jpg)
+
+
+<!-- .slide: data-transition="none" -->
+![1](./content/images/kubernetes-best-practices-36-638.jpg)
