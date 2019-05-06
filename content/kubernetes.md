@@ -544,6 +544,30 @@ spec:
 </pre>
 
 
+<!-- .slide: data-transition="none" -->
+### Resources
+<pre>
+apiVersion: v1
+kind: Pod
+metadata:
+  name: rss-site
+  labels:
+    app: web
+spec:
+  containers:
+    - name: front-end
+      image: nginx
+      ports:
+        - containerPort: 80
+    <u>resources:</u>
+      limits:
+        memory: "128Mi"
+        cpu: "500m"
+      requests:
+        memory: "64Mi"
+        cpu: "200m"
+</pre>
+
 
 ### Deployment
 * As stated before, Pods are not durable, and might come down

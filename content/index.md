@@ -2,9 +2,13 @@
 
 
 
-## About Me
-### Yehiyam Livneh
-I am currently working on Hkube, a cloud-native open source framework to run distributed pipeline of algorithms built on Kubernetes ( http://hkube.io ) 
+## Slides  
+https://yehiyam.github.io/kubernetes-course/#/
+
+
+
+## Samples  
+https://github.com/yehiyam/kubernetes-course-samples
 
 
 

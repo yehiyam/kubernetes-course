@@ -130,13 +130,16 @@ e.g. Mount local directory /html as directory /usr/share/nginx/html in the conta
 ![pr](./content/images/coding.gif) 
 
 
+
 ### Exercise
 ----------
 1. Start a webserver
 2. Overwrite the content of the index.html
 3. Watch the webserver logs
 4. compare the output of `ps -ef` from your container with the host
-> https://www.katacoda.com/courses/docker/create-nginx-static-web-server
+
+https://www.katacoda.com/courses/docker/create-nginx-static-web-server
+
 
 
 ### Dockerfile
@@ -275,5 +278,6 @@ Works for tagging, pulling and pushing
 
 ### Exercise
 ----------
-1. TBD
+1. Clone https://github.com/yehiyam/kubernetes-course-samples
+2. Follow the examples in the docker folder
 
