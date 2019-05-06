@@ -2,7 +2,7 @@
 
 [Presentation](https://yehiyam.github.io/kubernetes-course/#/)  
 [Source](https://github.com/yehiyam/kubernetes-course)  
-[Samples](https://github.com/yehiyam/kubernetes-course-examples)   
+[Samples](https://github.com/yehiyam/kubernetes-course-samples)   
 ## docker
 * What is docker
 * How to install
