@@ -769,6 +769,28 @@ spec:
 </pre>
 
 
+### Service Type ClusterIP
+* Not exposed outside cluster.
+* Suitable for communication within cluster 
+>Example: A frontend application talking to a backend without exposing the
+backend outside the cluster.
+
+
+### Service Type: NodePort
+* Exposed through a port on each of the nodes in the cluster
+* Port range 30000-32767
+> Example: Allow a physical Load Balancer to access service
+
+
+### Service Type: LoadBalancer
+* Cloud specific implementation
+
+
+### Services Type: Headless service
+* No endpoint is created
+* Can be used to return a list of pod IP's
+
+
 
 ### Configuration
 * Applications expect configuration from
@@ -1031,3 +1053,144 @@ spec:
             - date; echo Hello from the Kubernetes cluster
           restartPolicy: OnFailure
 </pre>
+
+
+
+### Persistent Storage (Volumes)
+* As we saw before, Pods are ephemeral and stateless
+* Volumes brings persistance to Pods
+* All containers in a Pod can access the volume
+* Volumes are associated with the lifecycle of Pod
+
+
+<!-- .slide: data-position="top" --> 
+### Pods and Volumes
+![podsAndVolumes](./content/images/podsAndVolumes.png)
+
+
+### Types of Volumes
+Host Based|Block|Network
+----------|:---:|-------
+EmptyDir|Amazon EBS|NFS
+HostPath|GCE Persistent Disk|Ceph
+        |Azure Disk|Gluster
+
+
+### Persistent Volumes & Claims
+* PersistentVolume (PV)
+ * Networked storage in the cluster pre-provisioned by an administrator.
+* PersistentVolumeClaim (PVC)
+ * Storage resource requested by a user.
+* StorageClass
+ * Types of supported storage profiles offered by administrators
+
+
+### Storage Provisioning Workflow
+![storage](./content/images/storage.png)
+
+
+
+### Exposing Services and Ingress
+* Services expose application running in pods
+* Services provide a stable endpoint for clients
+* Ingress adds intelligent routing on top of services
+
+
+### Ingress 
+* Ingress is composed of two parts
+* Ingress Resource
+ * Defines (configures) routing conditions to a service
+* Ingress Controller
+ * A controller (Pod) that watches for resources and updates its rules accordingly
+ * Common Ingress Controllers: Nginx, HAProxy, Envoy and more
+
+
+### Ingress Resource
+```yaml
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+  name: simulator
+  namespace: default
+spec:
+  rules:
+  - http:
+      paths:
+      - backend:
+          serviceName: simulator
+          servicePort: 9050
+        path: /hkube/simulator
+```
+
+
+<!-- .slide: data-transition="none" -->
+### Ingress Resource
+<pre>
+apiVersion: extensions/v1beta1
+<u>kind: Ingress</u>
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+  name: simulator
+  namespace: default
+spec:
+  rules:
+  - http:
+      paths:
+      - backend:
+          serviceName: simulator
+          servicePort: 9050
+        path: /hkube/simulator
+</pre>
+
+
+<!-- .slide: data-transition="none" -->
+### Ingress Resource
+<pre>
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+  name: simulator
+  namespace: default
+spec:
+  rules:
+  - http:
+      paths:
+      <u>- backend:</u>
+          serviceName: simulator
+          servicePort: 9050
+        path: /hkube/simulator
+</pre>
+
+
+<!-- .slide: data-transition="none" -->
+### Ingress Resource
+<pre>
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+  name: simulator
+  namespace: default
+spec:
+  rules:
+  - http:
+      paths:
+      - backend:
+          serviceName: simulator
+          servicePort: 9050
+        <u>path: /hkube/simulator</u>
+</pre>
+
+
+### Ingress
+![ingress](./content/images/ingress.png)
+
+
+
+## Good practices
